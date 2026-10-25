@@ -10,11 +10,40 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedMisCursosRouteImport } from './routes/_authenticated/mis-cursos'
+import { Route as AuthenticatedPagoRouteImport } from './routes/_authenticated/pago'
+import { Route as CursosSlugRouteImport } from './routes/cursos.$slug'
 import { Route as ApiPublicMercadopagoWebhookRouteImport } from './routes/api/public/mercadopago-webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedMisCursosRoute = AuthenticatedMisCursosRouteImport.update({
+  id: '/mis-cursos',
+  path: '/mis-cursos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPagoRoute = AuthenticatedPagoRouteImport.update({
+  id: '/pago',
+  path: '/pago',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const CursosSlugRoute = CursosSlugRouteImport.update({
+  id: '/cursos/$slug',
+  path: '/cursos/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicMercadopagoWebhookRoute =
@@ -26,27 +55,63 @@ const ApiPublicMercadopagoWebhookRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/mis-cursos': typeof AuthenticatedMisCursosRoute
+  '/pago': typeof AuthenticatedPagoRoute
+  '/cursos/$slug': typeof CursosSlugRoute
   '/api/public/mercadopago-webhook': typeof ApiPublicMercadopagoWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/mis-cursos': typeof AuthenticatedMisCursosRoute
+  '/pago': typeof AuthenticatedPagoRoute
+  '/cursos/$slug': typeof CursosSlugRoute
   '/api/public/mercadopago-webhook': typeof ApiPublicMercadopagoWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/mis-cursos': typeof AuthenticatedMisCursosRoute
+  '/_authenticated/pago': typeof AuthenticatedPagoRoute
+  '/cursos/$slug': typeof CursosSlugRoute
   '/api/public/mercadopago-webhook': typeof ApiPublicMercadopagoWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/public/mercadopago-webhook'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/mis-cursos'
+    | '/pago'
+    | '/cursos/$slug'
+    | '/api/public/mercadopago-webhook'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/public/mercadopago-webhook'
-  id: '__root__' | '/' | '/api/public/mercadopago-webhook'
+  to:
+    | '/'
+    | '/auth'
+    | '/mis-cursos'
+    | '/pago'
+    | '/cursos/$slug'
+    | '/api/public/mercadopago-webhook'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/mis-cursos'
+    | '/_authenticated/pago'
+    | '/cursos/$slug'
+    | '/api/public/mercadopago-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  CursosSlugRoute: typeof CursosSlugRoute
   ApiPublicMercadopagoWebhookRoute: typeof ApiPublicMercadopagoWebhookRoute
 }
 
@@ -59,6 +124,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/mis-cursos': {
+      id: '/_authenticated/mis-cursos'
+      path: '/mis-cursos'
+      fullPath: '/mis-cursos'
+      preLoaderRoute: typeof AuthenticatedMisCursosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pago': {
+      id: '/_authenticated/pago'
+      path: '/pago'
+      fullPath: '/pago'
+      preLoaderRoute: typeof AuthenticatedPagoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/cursos/$slug': {
+      id: '/cursos/$slug'
+      path: '/cursos/$slug'
+      fullPath: '/cursos/$slug'
+      preLoaderRoute: typeof CursosSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/mercadopago-webhook': {
       id: '/api/public/mercadopago-webhook'
       path: '/api/public/mercadopago-webhook'
@@ -69,8 +169,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedMisCursosRoute: typeof AuthenticatedMisCursosRoute
+  AuthenticatedPagoRoute: typeof AuthenticatedPagoRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedMisCursosRoute: AuthenticatedMisCursosRoute,
+  AuthenticatedPagoRoute: AuthenticatedPagoRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  CursosSlugRoute: CursosSlugRoute,
   ApiPublicMercadopagoWebhookRoute: ApiPublicMercadopagoWebhookRoute,
 }
 export const routeTree = rootRouteImport
