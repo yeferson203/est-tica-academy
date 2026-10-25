@@ -12,10 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedMisCursosRouteImport } from './routes/_authenticated/mis-cursos'
 import { Route as AuthenticatedPagoRouteImport } from './routes/_authenticated/pago'
+import { Route as CertificadoIdRouteImport } from './routes/certificado.$id'
 import { Route as CursosSlugRouteImport } from './routes/cursos.$slug'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminAlumnasRouteImport } from './routes/_authenticated/admin.alumnas'
+import { Route as AuthenticatedAprenderSlugRouteImport } from './routes/_authenticated/aprender.$slug'
 import { Route as ApiPublicMercadopagoWebhookRouteImport } from './routes/api/public/mercadopago-webhook'
+import { Route as AuthenticatedAdminCursosIdRouteImport } from './routes/_authenticated/admin.cursos.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -31,6 +37,11 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMisCursosRoute = AuthenticatedMisCursosRouteImport.update({
   id: '/mis-cursos',
   path: '/mis-cursos',
@@ -41,76 +52,139 @@ const AuthenticatedPagoRoute = AuthenticatedPagoRouteImport.update({
   path: '/pago',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const CertificadoIdRoute = CertificadoIdRouteImport.update({
+  id: '/certificado/$id',
+  path: '/certificado/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CursosSlugRoute = CursosSlugRouteImport.update({
   id: '/cursos/$slug',
   path: '/cursos/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminAlumnasRoute =
+  AuthenticatedAdminAlumnasRouteImport.update({
+    id: '/alumnas',
+    path: '/alumnas',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAprenderSlugRoute =
+  AuthenticatedAprenderSlugRouteImport.update({
+    id: '/aprender/$slug',
+    path: '/aprender/$slug',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiPublicMercadopagoWebhookRoute =
   ApiPublicMercadopagoWebhookRouteImport.update({
     id: '/api/public/mercadopago-webhook',
     path: '/api/public/mercadopago-webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthenticatedAdminCursosIdRoute =
+  AuthenticatedAdminCursosIdRouteImport.update({
+    id: '/cursos/$id',
+    path: '/cursos/$id',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/mis-cursos': typeof AuthenticatedMisCursosRoute
   '/pago': typeof AuthenticatedPagoRoute
+  '/certificado/$id': typeof CertificadoIdRoute
   '/cursos/$slug': typeof CursosSlugRoute
+  '/admin/alumnas': typeof AuthenticatedAdminAlumnasRoute
+  '/aprender/$slug': typeof AuthenticatedAprenderSlugRoute
   '/api/public/mercadopago-webhook': typeof ApiPublicMercadopagoWebhookRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/admin/cursos/$id': typeof AuthenticatedAdminCursosIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/mis-cursos': typeof AuthenticatedMisCursosRoute
   '/pago': typeof AuthenticatedPagoRoute
+  '/certificado/$id': typeof CertificadoIdRoute
   '/cursos/$slug': typeof CursosSlugRoute
+  '/admin/alumnas': typeof AuthenticatedAdminAlumnasRoute
+  '/aprender/$slug': typeof AuthenticatedAprenderSlugRoute
   '/api/public/mercadopago-webhook': typeof ApiPublicMercadopagoWebhookRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/admin/cursos/$id': typeof AuthenticatedAdminCursosIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/mis-cursos': typeof AuthenticatedMisCursosRoute
   '/_authenticated/pago': typeof AuthenticatedPagoRoute
+  '/certificado/$id': typeof CertificadoIdRoute
   '/cursos/$slug': typeof CursosSlugRoute
+  '/_authenticated/admin/alumnas': typeof AuthenticatedAdminAlumnasRoute
+  '/_authenticated/aprender/$slug': typeof AuthenticatedAprenderSlugRoute
   '/api/public/mercadopago-webhook': typeof ApiPublicMercadopagoWebhookRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/admin/cursos/$id': typeof AuthenticatedAdminCursosIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/admin'
     | '/mis-cursos'
     | '/pago'
+    | '/certificado/$id'
     | '/cursos/$slug'
+    | '/admin/alumnas'
+    | '/aprender/$slug'
     | '/api/public/mercadopago-webhook'
+    | '/admin/'
+    | '/admin/cursos/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/mis-cursos'
     | '/pago'
+    | '/certificado/$id'
     | '/cursos/$slug'
+    | '/admin/alumnas'
+    | '/aprender/$slug'
     | '/api/public/mercadopago-webhook'
+    | '/admin'
+    | '/admin/cursos/$id'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/admin'
     | '/_authenticated/mis-cursos'
     | '/_authenticated/pago'
+    | '/certificado/$id'
     | '/cursos/$slug'
+    | '/_authenticated/admin/alumnas'
+    | '/_authenticated/aprender/$slug'
     | '/api/public/mercadopago-webhook'
+    | '/_authenticated/admin/'
+    | '/_authenticated/admin/cursos/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  CertificadoIdRoute: typeof CertificadoIdRoute
   CursosSlugRoute: typeof CursosSlugRoute
   ApiPublicMercadopagoWebhookRoute: typeof ApiPublicMercadopagoWebhookRoute
 }
@@ -138,6 +212,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/mis-cursos': {
       id: '/_authenticated/mis-cursos'
       path: '/mis-cursos'
@@ -152,12 +233,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPagoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/certificado/$id': {
+      id: '/certificado/$id'
+      path: '/certificado/$id'
+      fullPath: '/certificado/$id'
+      preLoaderRoute: typeof CertificadoIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/cursos/$slug': {
       id: '/cursos/$slug'
       path: '/cursos/$slug'
       fullPath: '/cursos/$slug'
       preLoaderRoute: typeof CursosSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/alumnas': {
+      id: '/_authenticated/admin/alumnas'
+      path: '/alumnas'
+      fullPath: '/admin/alumnas'
+      preLoaderRoute: typeof AuthenticatedAdminAlumnasRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/aprender/$slug': {
+      id: '/_authenticated/aprender/$slug'
+      path: '/aprender/$slug'
+      fullPath: '/aprender/$slug'
+      preLoaderRoute: typeof AuthenticatedAprenderSlugRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/public/mercadopago-webhook': {
       id: '/api/public/mercadopago-webhook'
@@ -166,17 +275,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMercadopagoWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/admin/cursos/$id': {
+      id: '/_authenticated/admin/cursos/$id'
+      path: '/cursos/$id'
+      fullPath: '/admin/cursos/$id'
+      preLoaderRoute: typeof AuthenticatedAdminCursosIdRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAlumnasRoute: typeof AuthenticatedAdminAlumnasRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdminCursosIdRoute: typeof AuthenticatedAdminCursosIdRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAlumnasRoute: AuthenticatedAdminAlumnasRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdminCursosIdRoute: AuthenticatedAdminCursosIdRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedMisCursosRoute: typeof AuthenticatedMisCursosRoute
   AuthenticatedPagoRoute: typeof AuthenticatedPagoRoute
+  AuthenticatedAprenderSlugRoute: typeof AuthenticatedAprenderSlugRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedMisCursosRoute: AuthenticatedMisCursosRoute,
   AuthenticatedPagoRoute: AuthenticatedPagoRoute,
+  AuthenticatedAprenderSlugRoute: AuthenticatedAprenderSlugRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -186,6 +321,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  CertificadoIdRoute: CertificadoIdRoute,
   CursosSlugRoute: CursosSlugRoute,
   ApiPublicMercadopagoWebhookRoute: ApiPublicMercadopagoWebhookRoute,
 }
