@@ -86,7 +86,7 @@ function CourseForm({ course, onSaved }: { course: Course; onSaved: () => void }
       title: f.title, slug: f.slug, subtitle: f.subtitle, description: f.description, image_url: f.image_url || null,
       price_cop: Number(f.price_cop) || 0, duration: f.duration, level: f.level, pass_score: Number(f.pass_score) || 70, published: f.published,
     }).eq("id", course.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Curso guardado");
     onSaved();
   }
@@ -111,7 +111,7 @@ function LessonForm({ lesson, onChange }: { lesson: Lesson; onChange: () => void
   const [f, setF] = useState(lesson);
   async function save() {
     const { error } = await supabase.from("lessons").update({ title: f.title, position: Number(f.position), video_url: f.video_url, content: f.content }).eq("id", lesson.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Lección guardada");
     onChange();
   }
@@ -135,9 +135,9 @@ function QuestionForm({ q, onChange }: { q: Question; onChange: () => void }) {
   const [correct, setCorrect] = useState(q.correct_index);
   async function save() {
     const clean = options.map((o) => o.trim()).filter(Boolean);
-    if (clean.length < 2) return toast.error("Mínimo 2 opciones");
+    if (clean.length < 2) { toast.error("Mínimo 2 opciones"); return; }
     const { error } = await supabase.from("quiz_questions").update({ question, options: clean, correct_index: Math.min(correct, clean.length - 1) }).eq("id", q.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Pregunta guardada");
     onChange();
   }

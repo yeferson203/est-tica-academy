@@ -89,7 +89,7 @@ export const issueCertificate = createServerFn({ method: "POST" })
     await supabaseAdmin.from("profiles").update({ full_name: data.fullName }).eq("id", uid);
     const { data: cert, error } = await supabaseAdmin
       .from("certificates")
-      .insert({ user_id: uid, course_id: data.courseId, full_name: data.fullName, course_title: course!.title, score: best[0].score })
+      .insert({ user_id: uid, course_id: data.courseId, full_name: data.fullName, course_title: course!.title, score: best[0]!.score })
       .select("id")
       .single();
     if (error) throw new Error("No se pudo emitir el certificado");

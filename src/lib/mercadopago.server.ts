@@ -11,7 +11,7 @@ export async function createPreference(input: {
   title: string;
   price: number;
   userId: string;
-  email?: string;
+  email?: string | undefined;
   origin: string;
 }) {
   const res = await fetch(`${MP_API}/checkout/preferences`, {

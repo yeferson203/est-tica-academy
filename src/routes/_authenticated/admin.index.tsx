@@ -19,7 +19,7 @@ function AdminCourses() {
   async function create() {
     const slug = `nuevo-curso-${Date.now().toString(36)}`;
     const { data: c, error } = await supabase.from("courses").insert({ slug, title: "Nuevo curso", published: false }).select("id").single();
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     navigate({ to: "/admin/cursos/$id", params: { id: c.id } });
   }
 

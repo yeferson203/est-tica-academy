@@ -43,7 +43,7 @@ function Classroom() {
       ]);
       return {
         course, enrolled: !!enrolled, lessons: lessons ?? [], done: new Set((prog ?? []).map((p) => p.lesson_id)),
-        quiz: quiz ?? [], best: attempts?.[0], cert, fullName: profile?.full_name ?? u.user!.user_metadata?.full_name ?? "", userId: u.user!.id,
+        quiz: quiz ?? [], best: attempts?.[0], cert, fullName: profile?.full_name ?? u.user!.user_metadata?.["full_name"] ?? "", userId: u.user!.id,
       };
     },
   });
@@ -68,7 +68,7 @@ function Classroom() {
 
   async function markDone(id: string) {
     const { error } = await supabase.from("lesson_progress").insert({ lesson_id: id, course_id: data!.course.id, user_id: data!.userId });
-    if (error && !error.message.includes("duplicate")) return toast.error("No se pudo guardar");
+    if (error && !error.message.includes("duplicate")) { toast.error("No se pudo guardar"); return; }
     await refresh();
     const idx = data!.lessons.findIndex((l) => l.id === id);
     setActive(data!.lessons[idx + 1]?.id ?? "quiz");
@@ -138,8 +138,8 @@ function QuizPanel(props: {
   courseId: string;
   quiz: { id: string; question: string; options: unknown }[];
   allDone: boolean;
-  best?: { score: number; passed: boolean };
-  certId?: string;
+  best?: { score: number; passed: boolean } | undefined;
+  certId?: string | undefined;
   defaultName: string;
   passScore: number;
   onChange: () => void;
@@ -172,7 +172,7 @@ function QuizPanel(props: {
   const passed = result?.passed || props.best?.passed;
 
   async function doSubmit() {
-    if (Object.keys(answers).length < props.quiz.length) return toast.error("Responde todas las preguntas");
+    if (Object.keys(answers).length < props.quiz.length) { toast.error("Responde todas las preguntas"); return; }
     setBusy(true);
     try {
       const r = await submit({ data: { courseId: props.courseId, answers } });
