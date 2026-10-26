@@ -13,6 +13,7 @@ import { confirmPayment, startCheckout } from "@/lib/academy.functions";
 export const Route = createFileRoute("/cursos/$slug")({
   validateSearch: z.object({
     payment_id: z.coerce.string().optional(),
+    collection_id: z.coerce.string().optional(),
     status: z.string().optional(),
   }),
   head: () => ({
@@ -31,13 +32,15 @@ export const Route = createFileRoute("/cursos/$slug")({
 
 function CoursePage() {
   const { slug } = Route.useParams();
-  const { payment_id: paymentId } = Route.useSearch();
+  const { payment_id: paymentIdParam, collection_id: collectionId, status } = Route.useSearch();
+  const paymentId = paymentIdParam ?? collectionId;
   const { user } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const checkout = useServerFn(startCheckout);
   const confirm = useServerFn(confirmPayment);
   const [paying, setPaying] = useState(false);
+  const isPaymentReturn = !!(paymentId || status);
 
   useEffect(() => {
     const resetPaying = () => setPaying(false);
@@ -72,10 +75,17 @@ function CoursePage() {
     queryKey: ["confirm", user?.id, paymentId],
     enabled: !!user && paymentIdIsValid,
     queryFn: () => confirm({ data: { paymentId: paymentId! } }),
+    refetchInterval: (query) =>
+      query.state.data?.status === "pending" || query.state.data?.status === "in_process"
+        ? 5000
+        : false,
   });
   const paymentApprovedForCourse =
     paymentConfirmation.data?.status === "approved" &&
     paymentConfirmation.data.courseId === course?.id;
+  const paymentNeedsRetry =
+    isPaymentReturn &&
+    (paymentConfirmation.isError || paymentConfirmation.data?.status === "error");
 
   useEffect(() => {
     if (paymentApprovedForCourse && course && user) {
@@ -146,17 +156,33 @@ function CoursePage() {
             <p className="font-serif text-4xl">
               {course.price_cop > 0 ? formatCOP(course.price_cop) : "Gratis"}
             </p>
-            {paymentIdIsValid && paymentConfirmation.isPending && (
+            {paymentIdIsValid && user && paymentConfirmation.isPending && (
               <p className="mt-4 text-center text-sm text-muted-foreground">
                 Verificando tu pago con Mercado Pago…
               </p>
             )}
-            {paymentConfirmation.data?.status === "pending" ||
-            paymentConfirmation.data?.status === "in_process" ? (
+            {isPaymentReturn && !user && (
               <p className="mt-4 text-center text-sm text-muted-foreground">
-                Tu pago está en proceso. El acceso se habilitará cuando Mercado Pago lo confirme.
+                Inicia sesión con la misma cuenta de Google que usaste al comprar para validar tu
+                pago y activar el acceso.
+              </p>
+            )}
+            {paymentConfirmation.data?.status === "pending" ||
+            paymentConfirmation.data?.status === "in_process" ||
+            (isPaymentReturn && paymentIdIsValid && !user) ? (
+              <p className="mt-4 text-center text-sm text-muted-foreground">
+                {paymentConfirmation.data?.status === "pending" ||
+                paymentConfirmation.data?.status === "in_process"
+                  ? "Tu pago está en proceso. Estamos verificándolo; no vuelvas a pagar."
+                  : "Volviendo de Mercado Pago; inicia sesión para verificar el pago."}
               </p>
             ) : null}
+            {isPaymentReturn && !paymentIdIsValid && (
+              <p className="mt-4 text-center text-sm text-destructive">
+                No recibimos el identificador del pago para verificarlo. Revisa Mis cursos y no
+                vuelvas a pagar todavía.
+              </p>
+            )}
             {paymentConfirmation.isError && (
               <p className="mt-4 text-center text-sm text-destructive">
                 No pudimos confirmar el pago. Recarga esta página para volver a intentarlo.
@@ -167,7 +193,7 @@ function CoursePage() {
                 No pudimos validar este pago. Si ya fue aprobado, contáctanos para ayudarte.
               </p>
             )}
-            {enrolled ? (
+            {enrolled || paymentApprovedForCourse ? (
               <Link
                 to="/aprender/$slug"
                 params={{ slug }}
@@ -177,10 +203,12 @@ function CoursePage() {
               </Link>
             ) : (
               <button
-                onClick={buy}
+                onClick={paymentNeedsRetry ? () => void paymentConfirmation.refetch() : buy}
                 disabled={
                   paying ||
                   paymentApprovedForCourse ||
+                  (paymentNeedsRetry && paymentConfirmation.isFetching) ||
+                  (isPaymentReturn && !paymentIdIsValid) ||
                   (paymentIdIsValid && paymentConfirmation.isPending)
                 }
                 className="mt-6 w-full rounded-full bg-gold py-4 text-xs uppercase tracking-[0.2em] text-gold-foreground disabled:opacity-60"
@@ -189,9 +217,17 @@ function CoursePage() {
                   ? "Redirigiendo…"
                   : paymentApprovedForCourse
                     ? "Activando acceso…"
-                    : user
-                      ? "Comprar con Mercado Pago"
-                      : "Ingresa para comprar"}
+                    : paymentNeedsRetry
+                      ? paymentConfirmation.isFetching
+                        ? "Verificando…"
+                        : "Reintentar verificación"
+                      : isPaymentReturn && !user
+                        ? "Ingresa para validar tu pago"
+                        : isPaymentReturn && !paymentIdIsValid
+                          ? "Pago por verificar"
+                          : user
+                            ? "Comprar con Mercado Pago"
+                            : "Ingresa para comprar"}
               </button>
             )}
             <p className="mt-4 text-center text-xs text-muted-foreground">
