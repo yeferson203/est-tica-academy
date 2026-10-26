@@ -15,6 +15,9 @@ import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteHeader, SiteFooter, CookieNotice } from "@/components/site-chrome";
 
+// Versioned so WhatsApp/Facebook re-fetch the preview instead of reusing a stale cached copy.
+const OG_IMAGE = "https://academialorenabahos.netlify.app/og-image.jpg?v=20261026b";
+
 function NotFoundComponent() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4">
@@ -66,11 +69,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Academia Lorena Bahos" },
-      { property: "og:url", content: "https://academialorenabahos.netlify.app/" },
+      { property: "og:locale", content: "es_CO" },
+      { property: "og:title", content: "Academia Lorena Bahos · Cursos de estética" },
       {
-        property: "og:image",
-        content: "https://academialorenabahos.netlify.app/og-image.jpg",
+        property: "og:description",
+        content: "Cursos online de cuidado facial con certificado al finalizar.",
       },
+      { property: "og:image", content: OG_IMAGE },
+      { property: "og:image:secure_url", content: OG_IMAGE },
+      { property: "og:image:type", content: "image/jpeg" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
       {
@@ -83,10 +90,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         name: "twitter:description",
         content: "Cursos online de cuidado facial con certificado al finalizar.",
       },
-      {
-        name: "twitter:image",
-        content: "https://academialorenabahos.netlify.app/og-image.jpg",
-      },
+      { name: "twitter:image", content: OG_IMAGE },
       { name: "theme-color", content: "#fbf9f6" },
     ],
     links: [

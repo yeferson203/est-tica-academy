@@ -10,11 +10,20 @@ import { useAuth } from "@/hooks/use-auth";
 import { courseImage, formatCOP } from "@/lib/courses";
 import { confirmPayment, startCheckout } from "@/lib/academy.functions";
 
+// Mercado Pago sends literal "null" values (e.g. `payment_id=null&status=null`) when the buyer
+// leaves the checkout with "Volver a la tienda" without paying; treat those as absent.
+const mpParam = z.preprocess(
+  (v) => (v == null || v === "" || v === "null" || v === "undefined" ? undefined : String(v)),
+  z.string().optional(),
+);
+
+const PAYMENT_RETURN_STATUSES = ["approved", "pending", "in_process"];
+
 export const Route = createFileRoute("/cursos/$slug")({
   validateSearch: z.object({
-    payment_id: z.coerce.string().optional(),
-    collection_id: z.coerce.string().optional(),
-    status: z.string().optional(),
+    payment_id: mpParam,
+    collection_id: mpParam,
+    status: mpParam,
   }),
   head: () => ({
     meta: [
@@ -40,7 +49,11 @@ function CoursePage() {
   const checkout = useServerFn(startCheckout);
   const confirm = useServerFn(confirmPayment);
   const [paying, setPaying] = useState(false);
-  const isPaymentReturn = !!(paymentId || status);
+  const paymentIdIsValid = !!paymentId && /^\d{1,30}$/.test(paymentId);
+  // Only a real payment (or one Mercado Pago says is approved/in progress) needs verification;
+  // abandoned or rejected checkouts fall back to the normal "buy" state.
+  const isPaymentReturn =
+    paymentIdIsValid || (!!status && PAYMENT_RETURN_STATUSES.includes(status));
 
   useEffect(() => {
     const resetPaying = () => setPaying(false);
@@ -70,7 +83,6 @@ function CoursePage() {
     enabled: !!course && !!user,
     queryFn: async () => !!(await supabase.rpc("is_enrolled", { _course_id: course!.id })).data,
   });
-  const paymentIdIsValid = !!paymentId && /^\d{1,30}$/.test(paymentId);
   const paymentConfirmation = useQuery({
     queryKey: ["confirm", user?.id, paymentId],
     enabled: !!user && paymentIdIsValid,
@@ -181,6 +193,11 @@ function CoursePage() {
               <p className="mt-4 text-center text-sm text-destructive">
                 No recibimos el identificador del pago para verificarlo. Revisa Mis cursos y no
                 vuelvas a pagar todavía.
+              </p>
+            )}
+            {paymentConfirmation.data?.status === "rejected" && (
+              <p className="mt-4 text-center text-sm text-muted-foreground">
+                El pago no se completó. Puedes intentarlo de nuevo cuando quieras.
               </p>
             )}
             {paymentConfirmation.isError && (

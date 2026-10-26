@@ -20,16 +20,6 @@ export const Route = createFileRoute("/")({
         content: "Cursos en video de cuidado facial con certificado al finalizar.",
       },
       { property: "og:url", content: "https://academialorenabahos.netlify.app/" },
-      {
-        property: "og:image",
-        content: "https://academialorenabahos.netlify.app/og-image.jpg",
-      },
-      { property: "og:image:width", content: "1200" },
-      { property: "og:image:height", content: "630" },
-      {
-        property: "og:image:alt",
-        content: "Academia Lorena Bahos: cursos online de estética facial",
-      },
       { name: "twitter:title", content: "Academia Lorena Bahos · Cursos de estética" },
       {
         name: "twitter:description",
