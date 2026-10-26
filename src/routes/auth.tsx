@@ -96,7 +96,11 @@ function AuthPage() {
       sessionStorage.setItem(CONSENT_PENDING_KEY, PRIVACY_POLICY_VERSION);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
-        options: { redirectTo: `${window.location.origin}/auth` },
+        options: {
+          redirectTo: `${window.location.origin}/auth`,
+          // Always show Google's account chooser so users can pick which account to use
+          queryParams: { prompt: "select_account" },
+        },
       });
       if (error) throw error;
     } catch (error) {
