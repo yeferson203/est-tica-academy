@@ -3,6 +3,12 @@ import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/r
 import { renderErrorPage } from "./lib/error-page";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 
+const noStoreMiddleware = createMiddleware().server(async ({ next }) => {
+  const result = await next();
+  result.response.headers.set("Cache-Control", "private, no-store, max-age=0, must-revalidate");
+  return result;
+});
+
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
     return await next();
@@ -27,5 +33,5 @@ const csrfMiddleware = createCsrfMiddleware({
 
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachSupabaseAuth],
-  requestMiddleware: [errorMiddleware, csrfMiddleware],
+  requestMiddleware: [noStoreMiddleware, errorMiddleware, csrfMiddleware],
 }));

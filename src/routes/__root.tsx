@@ -13,7 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
-import { SiteHeader, SiteFooter } from "@/components/site-chrome";
+import { SiteHeader, SiteFooter, CookieNotice } from "@/components/site-chrome";
 
 function NotFoundComponent() {
   return (
@@ -65,7 +65,29 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content: "Cursos online de estética y cuidado facial con certificado.",
       },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "Academia Lorena Bahos" },
+      { property: "og:url", content: "https://academialorenabahos.netlify.app/" },
+      {
+        property: "og:image",
+        content: "https://academialorenabahos.netlify.app/og-image.jpg",
+      },
+      { property: "og:image:width", content: "1200" },
+      { property: "og:image:height", content: "630" },
+      {
+        property: "og:image:alt",
+        content: "Academia Lorena Bahos: cursos online de estética facial",
+      },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Academia Lorena Bahos · Cursos de estética" },
+      {
+        name: "twitter:description",
+        content: "Cursos online de cuidado facial con certificado al finalizar.",
+      },
+      {
+        name: "twitter:image",
+        content: "https://academialorenabahos.netlify.app/og-image.jpg",
+      },
+      { name: "theme-color", content: "#fbf9f6" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -75,7 +97,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Figtree:wght@400;500;600&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.ico?v=20261026", sizes: "any" },
+      { rel: "icon", href: "/favicon.svg?v=20261026", type: "image/svg+xml" },
+      {
+        rel: "icon",
+        href: "/favicon-48.png?v=20261026",
+        type: "image/png",
+        sizes: "48x48",
+      },
+      {
+        rel: "apple-touch-icon",
+        href: "/apple-touch-icon.png?v=20261026",
+        sizes: "180x180",
+      },
+      { rel: "manifest", href: "/site.webmanifest?v=20261026" },
     ],
   }),
   shellComponent: RootShell,
@@ -122,6 +157,7 @@ function RootComponent() {
         <SiteFooter />
       </div>
       <Toaster />
+      <CookieNotice />
     </QueryClientProvider>
   );
 }

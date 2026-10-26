@@ -224,6 +224,27 @@ export type Database = {
         };
         Relationships: [];
       };
+      privacy_consents: {
+        Row: {
+          accepted_at: string;
+          id: string;
+          policy_version: string;
+          user_id: string;
+        };
+        Insert: {
+          accepted_at?: string;
+          id?: string;
+          policy_version: string;
+          user_id: string;
+        };
+        Update: {
+          accepted_at?: string;
+          id?: string;
+          policy_version?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       quiz_attempts: {
         Row: {
           course_id: string;

@@ -1,8 +1,11 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
+import { PRIVACY_POLICY_VERSION } from "@/lib/privacy";
+
+const CONSENT_PENDING_KEY = "academy-privacy-consent-pending";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -27,25 +30,81 @@ function AuthPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
+  const [consentSaveFailed, setConsentSaveFailed] = useState(false);
+  const consentHandled = useRef(false);
   const supabaseConfigured = isSupabaseConfigured();
 
-  useEffect(() => {
-    if (user) {
-      const to = safePath(sessionStorage.getItem("after_login"));
+  const navigateAfterLogin = useCallback(() => {
+    let destination: string | null = null;
+    try {
+      destination = sessionStorage.getItem("after_login");
       sessionStorage.removeItem("after_login");
-      navigate({ to, replace: true });
+    } catch (error) {
+      console.error("Could not restore the post-login destination:", error);
     }
-  }, [user, navigate]);
+    navigate({ to: safePath(destination), replace: true });
+  }, [navigate]);
+
+  const recordPrivacyConsent = useCallback(
+    async (userId: string) => {
+      setBusy(true);
+      setConsentSaveFailed(false);
+      const { error } = await supabase
+        .from("privacy_consents")
+        .upsert(
+          { user_id: userId, policy_version: PRIVACY_POLICY_VERSION },
+          { onConflict: "user_id,policy_version", ignoreDuplicates: true },
+        );
+      if (error) {
+        console.error("Could not record privacy consent:", error);
+        setConsentSaveFailed(true);
+        setBusy(false);
+        return;
+      }
+      navigateAfterLogin();
+    },
+    [navigateAfterLogin],
+  );
+
+  useEffect(() => {
+    if (!user || consentHandled.current) return;
+    consentHandled.current = true;
+
+    let consentPending = false;
+    try {
+      consentPending = sessionStorage.getItem(CONSENT_PENDING_KEY) === PRIVACY_POLICY_VERSION;
+      if (consentPending) sessionStorage.removeItem(CONSENT_PENDING_KEY);
+    } catch (error) {
+      console.error("Could not read privacy consent state:", error);
+      setConsentSaveFailed(true);
+      return;
+    }
+
+    if (consentPending) {
+      void recordPrivacyConsent(user.id);
+      return;
+    }
+
+    navigateAfterLogin();
+  }, [user, navigateAfterLogin, recordPrivacyConsent]);
 
   async function google() {
+    if (!privacyAccepted) return;
     setBusy(true);
     try {
+      sessionStorage.setItem(CONSENT_PENDING_KEY, PRIVACY_POLICY_VERSION);
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: { redirectTo: `${window.location.origin}/auth` },
       });
       if (error) throw error;
     } catch (error) {
+      try {
+        sessionStorage.removeItem(CONSENT_PENDING_KEY);
+      } catch (storageError) {
+        console.error("Could not clear pending privacy consent:", storageError);
+      }
       console.error("Google sign-in failed:", error);
       toast.error("No se pudo iniciar sesión con Google");
       setBusy(false);
@@ -67,9 +126,44 @@ function AuthPage() {
           Configura tu proyecto Supabase para habilitar el inicio de sesión.
         </p>
       )}
+      <div className="mt-8 flex w-full items-start gap-3 text-left text-sm">
+        <input
+          id="privacy-consent"
+          type="checkbox"
+          checked={privacyAccepted}
+          onChange={(event) => setPrivacyAccepted(event.target.checked)}
+          className="mt-1 h-4 w-4 accent-[var(--gold)]"
+        />
+        <label htmlFor="privacy-consent" className="text-muted-foreground">
+          Autorizo el tratamiento de mis datos personales según la{" "}
+          <Link
+            to="/privacidad"
+            className="text-foreground underline underline-offset-4"
+            target="_blank"
+          >
+            Política de Tratamiento de Datos
+          </Link>
+          .
+        </label>
+      </div>
+      {consentSaveFailed && (
+        <div className="mt-4 text-sm text-destructive" role="alert">
+          No pudimos guardar tu autorización. Verifica que la migración de privacidad esté aplicada
+          en Supabase y vuelve a intentar.
+          {user && (
+            <button
+              onClick={() => void recordPrivacyConsent(user.id)}
+              disabled={busy}
+              className="mt-3 block underline underline-offset-4 disabled:opacity-60"
+            >
+              {busy ? "Guardando autorización…" : "Reintentar"}
+            </button>
+          )}
+        </div>
+      )}
       <button
         onClick={google}
-        disabled={busy || !supabaseConfigured}
+        disabled={busy || !supabaseConfigured || !privacyAccepted}
         className="mt-10 flex w-full items-center justify-center gap-3 rounded-full border border-border bg-card py-4 text-sm font-medium hover:bg-accent disabled:opacity-60"
       >
         <svg className="h-5 w-5" viewBox="0 0 48 48" aria-hidden>

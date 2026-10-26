@@ -24,4 +24,11 @@ describe("App routing", () => {
 
     expect(matches.at(-1)?.routeId).toBe("/cursos/$slug");
   });
+
+  it("matches the public privacy and cookie policy pages", () => {
+    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+
+    expect(router.matchRoutes("/privacidad").at(-1)?.routeId).toBe("/privacidad");
+    expect(router.matchRoutes("/cookies").at(-1)?.routeId).toBe("/cookies");
+  });
 });
