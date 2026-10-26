@@ -4,14 +4,14 @@ import viteReact from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 import netlify from "@netlify/vite-plugin-tanstack-start";
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [
     tanstackStart({
       server: { entry: "server" },
     }),
     viteReact(),
     tailwindcss(),
-    netlify(),
+    ...(command === "build" ? [netlify()] : []),
   ],
   resolve: { tsconfigPaths: true },
-});
+}));
