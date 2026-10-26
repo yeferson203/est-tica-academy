@@ -11,22 +11,33 @@ export async function createPreference(input: {
   title: string;
   price: number;
   userId: string;
+  courseSlug: string;
   email?: string | undefined;
   origin: string;
 }) {
+  const isSecureOrigin = new URL(input.origin).protocol === "https:";
+  const courseUrl = `${input.origin}/cursos/${encodeURIComponent(input.courseSlug)}`;
   const res = await fetch(`${MP_API}/checkout/preferences`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token()}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      items: [{ id: input.courseId, title: input.title, quantity: 1, unit_price: input.price, currency_id: "COP" }],
+      items: [
+        {
+          id: input.courseId,
+          title: input.title,
+          quantity: 1,
+          unit_price: input.price,
+          currency_id: "COP",
+        },
+      ],
       payer: input.email ? { email: input.email } : undefined,
       external_reference: `${input.userId}:${input.courseId}`,
       back_urls: {
-        success: `${input.origin}/pago`,
-        failure: `${input.origin}/pago`,
-        pending: `${input.origin}/pago`,
+        success: courseUrl,
+        failure: courseUrl,
+        pending: courseUrl,
       },
-      auto_return: "approved",
+      ...(isSecureOrigin ? { auto_return: "approved" } : {}),
       notification_url: `${input.origin}/api/public/mercadopago-webhook`,
     }),
   });
@@ -49,14 +60,23 @@ export async function verifyAndEnroll(paymentId: string) {
     console.error(`Mercado Pago payment lookup failed [${res.status}]: ${body}`);
     return { status: "error" as const };
   }
-  const p = (await res.json()) as { status: string; external_reference?: string; transaction_amount?: number };
+  const p = (await res.json()) as {
+    status: string;
+    external_reference?: string;
+    transaction_amount?: number;
+  };
   if (p.status !== "approved" || !p.external_reference) return { status: p.status };
   const [userId, courseId] = p.external_reference.split(":");
   if (!userId || !courseId) return { status: "error" as const };
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { error } = await supabaseAdmin.from("enrollments").upsert(
-    { user_id: userId, course_id: courseId, payment_id: String(paymentId), amount: Math.round(p.transaction_amount ?? 0) },
+    {
+      user_id: userId,
+      course_id: courseId,
+      payment_id: String(paymentId),
+      amount: Math.round(p.transaction_amount ?? 0),
+    },
     { onConflict: "user_id,course_id" },
   );
   if (error) {

@@ -28,30 +28,57 @@ export function SiteHeader() {
     navigate({ to: "/", replace: true });
   }
 
-  const link = "text-[0.7rem] tracking-[0.2em] text-muted-foreground hover:text-foreground uppercase";
+  const link =
+    "text-[0.7rem] tracking-[0.2em] text-muted-foreground hover:text-foreground uppercase";
   return (
     <header className="no-print border-b border-border/60 bg-background/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-5">
         <Logo />
         <nav className="hidden items-center gap-8 md:flex">
-          <Link to="/" className={link}>Cursos</Link>
-          {user && <Link to="/mis-cursos" className={link}>Mis cursos</Link>}
-          {isAdmin && <Link to="/admin" className={link}>Administrar</Link>}
+          <Link to="/" className={link}>
+            Cursos
+          </Link>
+          {user && (
+            <Link to="/mis-cursos" className={link}>
+              Mis cursos
+            </Link>
+          )}
+          {isAdmin && (
+            <Link to="/admin" className={link}>
+              Administrar
+            </Link>
+          )}
         </nav>
         {user ? (
-          <button onClick={signOut} className="rounded-full border border-border px-5 py-2.5 text-[0.7rem] uppercase tracking-[0.2em] hover:bg-accent">
+          <button
+            onClick={signOut}
+            className="rounded-full border border-border px-5 py-2.5 text-[0.7rem] uppercase tracking-[0.2em] hover:bg-accent"
+          >
             Salir
           </button>
         ) : (
-          <Link to="/auth" className="rounded-full border border-border px-5 py-2.5 text-[0.7rem] uppercase tracking-[0.2em] hover:bg-accent">
+          <Link
+            to="/auth"
+            className="rounded-full border border-border px-5 py-2.5 text-[0.7rem] uppercase tracking-[0.2em] hover:bg-accent"
+          >
             Ingresar
           </Link>
         )}
       </div>
       <nav className="flex justify-center gap-6 pb-3 md:hidden">
-        <Link to="/" className={link}>Cursos</Link>
-        {user && <Link to="/mis-cursos" className={link}>Mis cursos</Link>}
-        {isAdmin && <Link to="/admin" className={link}>Admin</Link>}
+        <Link to="/" className={link}>
+          Cursos
+        </Link>
+        {user && (
+          <Link to="/mis-cursos" className={link}>
+            Mis cursos
+          </Link>
+        )}
+        {isAdmin && (
+          <Link to="/admin" className={link}>
+            Admin
+          </Link>
+        )}
       </nav>
     </header>
   );

@@ -13,7 +13,11 @@ export function courseImage(c: { slug: string; image_url?: string | null }) {
 }
 
 export function formatCOP(v: number) {
-  return new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(v);
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0,
+  }).format(v);
 }
 
 /** Converts YouTube/Vimeo watch links to embeddable URLs. */

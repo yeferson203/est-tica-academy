@@ -5,7 +5,10 @@ import { z } from "zod";
 import { confirmPayment } from "@/lib/academy.functions";
 
 export const Route = createFileRoute("/_authenticated/pago")({
-  validateSearch: z.object({ payment_id: z.coerce.string().optional(), status: z.string().optional() }),
+  validateSearch: z.object({
+    payment_id: z.coerce.string().optional(),
+    status: z.string().optional(),
+  }),
   head: () => ({
     meta: [
       { title: "Resultado del pago · Academia Lorena Bahos" },
@@ -32,12 +35,31 @@ function PaymentResult() {
     <div className="mx-auto max-w-lg px-6 py-24 text-center">
       <p className="eyebrow">Pago</p>
       <h1 className="mt-4 text-5xl">
-        {isLoading ? "Verificando…" : ok ? <>¡Bienvenida al <em className="text-gold">curso</em>!</> : pending ? "Pago en proceso" : "Pago no completado"}
+        {isLoading ? (
+          "Verificando…"
+        ) : ok ? (
+          <>
+            ¡Bienvenida al <em className="text-gold">curso</em>!
+          </>
+        ) : pending ? (
+          "Pago en proceso"
+        ) : (
+          "Pago no completado"
+        )}
       </h1>
       <p className="mt-4 text-muted-foreground">
-        {ok ? "Tu inscripción está lista. Ya puedes empezar." : pending ? "Te daremos acceso apenas Mercado Pago lo confirme." : !isLoading ? "Si crees que es un error, escríbenos por WhatsApp." : ""}
+        {ok
+          ? "Tu inscripción está lista. Ya puedes empezar."
+          : pending
+            ? "Te daremos acceso apenas Mercado Pago lo confirme."
+            : !isLoading
+              ? "Si crees que es un error, escríbenos por WhatsApp."
+              : ""}
       </p>
-      <Link to="/mis-cursos" className="mt-10 inline-flex rounded-full bg-primary px-7 py-4 text-xs uppercase tracking-[0.2em] text-primary-foreground">
+      <Link
+        to="/mis-cursos"
+        className="mt-10 inline-flex rounded-full bg-primary px-7 py-4 text-xs uppercase tracking-[0.2em] text-primary-foreground"
+      >
         Ir a mis cursos
       </Link>
     </div>

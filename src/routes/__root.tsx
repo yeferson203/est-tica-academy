@@ -11,8 +11,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
-import { supabase } from "@/integrations/supabase/client";
+import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { SiteHeader, SiteFooter } from "@/components/site-chrome";
 
@@ -22,7 +21,10 @@ function NotFoundComponent() {
       <div className="max-w-md text-center">
         <h1 className="text-7xl text-foreground">404</h1>
         <p className="mt-2 text-muted-foreground">Esta página no existe.</p>
-        <Link to="/" className="mt-6 inline-flex rounded-full bg-primary px-6 py-3 text-xs uppercase tracking-widest text-primary-foreground">
+        <Link
+          to="/"
+          className="mt-6 inline-flex rounded-full bg-primary px-6 py-3 text-xs uppercase tracking-widest text-primary-foreground"
+        >
           Volver al inicio
         </Link>
       </div>
@@ -33,16 +35,16 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
-  useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-4">
       <div className="max-w-md text-center">
         <h1 className="text-3xl">Algo salió mal</h1>
         <p className="mt-2 text-sm text-muted-foreground">Intenta de nuevo en unos segundos.</p>
         <button
-          onClick={() => { router.invalidate(); reset(); }}
+          onClick={() => {
+            router.invalidate();
+            reset();
+          }}
           className="mt-6 rounded-full bg-primary px-6 py-3 text-xs uppercase tracking-widest text-primary-foreground"
         >
           Reintentar
@@ -58,7 +60,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Academia Lorena Bahos · Cursos de estética" },
-      { name: "description", content: "Cursos online de estética y cuidado facial con certificado." },
+      {
+        name: "description",
+        content: "Cursos online de estética y cuidado facial con certificado.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -97,6 +102,8 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const router = useRouter();
   useEffect(() => {
+    if (!isSupabaseConfigured()) return;
+
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();

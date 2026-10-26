@@ -1,13 +1,19 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { User } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const supabaseConfigured = isSupabaseConfigured();
 
   useEffect(() => {
+    if (!supabaseConfigured) {
+      setLoading(false);
+      return;
+    }
+
     supabase.auth.getSession().then(({ data }) => {
       setUser(data.session?.user ?? null);
       setLoading(false);
@@ -16,7 +22,7 @@ export function useAuth() {
       setUser(session?.user ?? null);
     });
     return () => data.subscription.unsubscribe();
-  }, []);
+  }, [supabaseConfigured]);
 
   const { data: isAdmin = false } = useQuery({
     queryKey: ["is-admin", user?.id],
