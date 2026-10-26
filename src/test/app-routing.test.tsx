@@ -14,4 +14,14 @@ describe("App routing", () => {
 
     expect(matches.at(-1)?.routeId).not.toBe(rootRouteId);
   });
+
+  it("accepts Mercado Pago return URLs with a numeric payment_id", () => {
+    const router = createRouter({ routeTree, context: { queryClient: new QueryClient() } });
+
+    const matches = router.matchRoutes(
+      "/cursos/cuidado-facial-esencial?payment_id=123456&status=approved",
+    );
+
+    expect(matches.at(-1)?.routeId).toBe("/cursos/$slug");
+  });
 });

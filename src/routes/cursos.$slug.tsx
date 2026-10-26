@@ -12,7 +12,7 @@ import { confirmPayment, startCheckout } from "@/lib/academy.functions";
 
 export const Route = createFileRoute("/cursos/$slug")({
   validateSearch: z.object({
-    payment_id: z.string().optional(),
+    payment_id: z.coerce.string().optional(),
     status: z.string().optional(),
   }),
   head: () => ({
