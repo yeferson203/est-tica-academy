@@ -37,6 +37,8 @@ describe("Mercado Pago course return", () => {
       pending: "https://academia.example/cursos/cuidado-facial-esencial",
     });
     expect(request.auto_return).toBe("approved");
+    // A pre-filled payer email hides the Mercado Pago account option in the checkout.
+    expect(request).not.toHaveProperty("payer");
   });
 
   it("omits automatic return for localhost, where Mercado Pago requires HTTPS", async () => {

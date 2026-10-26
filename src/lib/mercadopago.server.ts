@@ -12,7 +12,6 @@ export async function createPreference(input: {
   price: number;
   userId: string;
   courseSlug: string;
-  email?: string | undefined;
   origin: string;
 }) {
   const isSecureOrigin = new URL(input.origin).protocol === "https:";
@@ -30,7 +29,8 @@ export async function createPreference(input: {
           currency_id: "COP",
         },
       ],
-      payer: input.email ? { email: input.email } : undefined,
+      // No payer email: pre-filling the student's real email locks the checkout to it, which
+      // hides the "pay with a Mercado Pago account" option (and breaks test-user purchases).
       external_reference: `${input.userId}:${input.courseId}`,
       back_urls: {
         success: courseUrl,

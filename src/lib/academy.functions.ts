@@ -32,7 +32,6 @@ export const startCheckout = createServerFn({ method: "POST" })
       price: course.price_cop,
       userId: context.userId,
       courseSlug: course.slug,
-      email: (context.claims as { email?: string }).email,
       origin: new URL(data.origin).origin,
     });
     return { free: false as const, url };
